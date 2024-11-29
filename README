@@ -1,47 +1,27 @@
-# Tarea 4: Permisos Básicos e Inmutabilidad en xv6
+ Tarea 4: Permisos Básicos e Inmutabilidad en xv6
 
-## Descripción
+Descripción
 Este proyecto implementa un sistema de permisos básicos en xv6. Se añadieron las siguientes funcionalidades:
-1. **Permisos básicos**: Lectura (`1`), escritura (`2`) y lectura/escritura (`3`).
-2. **Permiso especial**: Inmutabilidad (`5`), que impide cualquier modificación o cambio de permisos.
+1. Permisos básicos**: Lectura (`1`), escritura (`2`) y lectura/escritura (`3`).
+2. Permiso especial**: Inmutabilidad (`5`), que impide cualquier modificación o cambio de permisos.
 
-## Modificaciones realizadas
+Modificaciones realizadas
 
-### Archivos clave:
+Archivos clave:
 - `fs.h`: Añadido el campo `perm` en la estructura `inode` para manejar permisos.
 - `fs.c`: Restricciones en las funciones de lectura y escritura basadas en permisos.
 - `sysfile.c`: Implementación de la syscall `chmod` para cambiar permisos.
 
-### Lógica implementada:
-- **Permisos básicos**: 
+Lógica implementada:
+- Permisos básicos: 
   - Un archivo puede ser solo de lectura, escritura, o ambos.
   - Las operaciones restringidas fallan con un código de error (`-1`).
-- **Inmutabilidad**:
+
+- Inmutabilidad:
   - Los archivos marcados como inmutables no pueden ser modificados ni se les pueden cambiar los permisos.
 
-### Dificultades encontradas:
+Dificultades encontradas:
 1. Asegurar que las operaciones de escritura y lectura respeten los permisos correctamente.
 2. Manejar los errores en la syscall `chmod` para archivos inmutables.
 3. Configurar correctamente las pruebas en el sistema xv6.
 
-## Pruebas
-
-### Prueba básica
-Archivo: `testpermissions.c`
-- Verifica la creación de archivos con permisos predeterminados.
-- Cambia permisos entre lectura, escritura y lectura/escritura.
-- Bloquea operaciones restringidas según los permisos.
-
-### Prueba de inmutabilidad
-Archivo: `testimmutable.c`
-- Cambia permisos de un archivo a inmutable (`5`).
-- Verifica que:
-  - No se pueda escribir.
-  - No se puedan cambiar permisos.
-
-## Cómo ejecutar
-
-1. **Clonar el repositorio**:
-   ```bash
-   git clone https://github.com/Tomascar10/Tarea-4-xv6.git
-   cd Tarea-4-xv6
