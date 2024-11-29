@@ -197,6 +197,7 @@ ialloc(uint dev, short type)
   int inum;
   struct buf *bp;
   struct dinode *dip;
+  ip->perm = 3;
 
   for(inum = 1; inum < sb.ninodes; inum++){
     bp = bread(dev, IBLOCK(inum, sb));
@@ -460,6 +461,9 @@ readi(struct inode *ip, char *dst, uint off, uint n)
       return -1;
     return devsw[ip->major].read(ip, dst, n);
   }
+  if ((ip->perm & 1) == 0) {
+    return -1; 
+}
 
   if(off > ip->size || off + n < off)
     return -1;
@@ -489,6 +493,12 @@ writei(struct inode *ip, char *src, uint off, uint n)
       return -1;
     return devsw[ip->major].write(ip, src, n);
   }
+  if ((ip->perm & 2) == 0 || ip->perm == 5) {
+    return -1; 
+}
+  if (ip->perm == 5) {
+    return -1;
+}
 
   if(off > ip->size || off + n < off)
     return -1;

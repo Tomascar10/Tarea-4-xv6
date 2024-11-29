@@ -51,6 +51,30 @@ fdalloc(struct file *f)
   }
   return -1;
 }
+int sys_chmod(void) {
+    char *path;
+    int mode;
+
+    if (argstr(0, &path) < 0 || argint(1, &mode) < 0)
+        return -1;
+
+    struct inode *ip = namei(path);
+    if (ip == 0)
+        return -1;
+
+    ilock(ip);
+
+    if (ip->perm == 5) { 
+        iunlock(ip);
+        return -1;
+    }
+
+    ip->perm = mode; 
+    iupdate(ip);     
+    iunlock(ip);
+
+    return 0;
+}
 
 int
 sys_dup(void)
@@ -85,9 +109,15 @@ sys_write(void)
   int n;
   char *p;
 
-  if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
-    return -1;
-  return filewrite(f, p, n);
+if (argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
+        return -1;
+
+    // Bloquear escritura si el archivo es inmutable
+    if (f->ip->perm == 5) {
+        return -1;
+    }
+
+    return filewrite(f, p, n);
 }
 
 int
@@ -295,13 +325,11 @@ sys_open(void)
 
   begin_op();
 
-  if(omode & O_CREATE){
-    ip = create(path, T_FILE, 0, 0);
-    if(ip == 0){
-      end_op();
-      return -1;
-    }
-  } else {
+  if ((omode & O_WRONLY || omode & O_RDWR) && ip->perm == 5) {
+    iunlockput(ip);
+    end_op();
+    return -1;
+} else {
     if((ip = namei(path)) == 0){
       end_op();
       return -1;

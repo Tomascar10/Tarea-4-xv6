@@ -55,3 +55,8 @@ struct dirent {
   char name[DIRSIZ];
 };
 
+struct inode {
+    ...
+    int perm;
+};
+
